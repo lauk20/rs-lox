@@ -19,7 +19,7 @@ impl TryFrom<usize> for OpCode {
     }
 }
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct Chunk {
     code: Vec<usize>,
     constants: ValueArray,
@@ -36,6 +36,7 @@ impl Chunk {
         self.lines.push(line);
     }
 
+     #[allow(dead_code)]
     pub fn disassemble_chunk(&self, name: &str) {
         println!("== {name} ==");
         let mut offset: usize = 0;
@@ -44,7 +45,7 @@ impl Chunk {
         }
     }
 
-    fn disassemble_instruction(&self, offset: usize) -> usize {
+    pub fn disassemble_instruction(&self, offset: usize) -> usize {
         print!("{}", format!("{:04} ", offset));
 
         if offset > 0 && self.lines[offset] == self.lines[offset - 1] {
@@ -81,5 +82,13 @@ impl Chunk {
     pub fn add_constant(&mut self, value: Value) -> usize {
         self.constants.add_constant(value);
         self.constants.get_count() - 1
+    }
+
+    pub fn get(&self, index: usize) -> usize {
+        self.code[index]
+    }
+
+    pub fn get_constant(&self, index: usize) -> Value {
+        self.constants.get(index)
     }
 }
