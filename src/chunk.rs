@@ -36,7 +36,7 @@ impl Chunk {
         self.lines.push(line);
     }
 
-     #[allow(dead_code)]
+    #[allow(dead_code)]
     pub fn disassemble_chunk(&self, name: &str) {
         println!("== {name} ==");
         let mut offset: usize = 0;
