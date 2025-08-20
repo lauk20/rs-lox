@@ -4,6 +4,11 @@ use crate::value::{ValueArray, Value};
 #[repr(usize)]
 pub enum OpCode {
     OpConstant,
+    OpAdd,
+    OpSubtract,
+    OpMultiply,
+    OpDivide,
+    OpNegate,
     OpReturn,
 }
 
@@ -13,6 +18,11 @@ impl TryFrom<usize> for OpCode {
     fn try_from(value: usize) -> Result<Self, Self::Error> {
         match value {
             x if x == OpCode::OpConstant as usize => Ok(OpCode::OpConstant),
+            x if x == OpCode::OpAdd as usize => Ok(OpCode::OpAdd),
+            x if x == OpCode::OpSubtract as usize => Ok(OpCode::OpSubtract),
+            x if x == OpCode::OpMultiply as usize => Ok(OpCode::OpMultiply),
+            x if x == OpCode::OpDivide as usize => Ok(OpCode::OpDivide),
+            x if x == OpCode::OpNegate as usize => Ok(OpCode::OpNegate),
             x if x == OpCode::OpReturn as usize => Ok(OpCode::OpReturn),
             _ => Err(()),
         }
@@ -62,6 +72,11 @@ impl Chunk {
             });
         match instruction {
             OpCode::OpReturn => Self::simple_instruction("OpReturn", offset),
+            OpCode::OpAdd => Self::simple_instruction("OpAdd", offset),
+            OpCode::OpSubtract => Self::simple_instruction("OpSubtract", offset),
+            OpCode::OpMultiply => Self::simple_instruction("OpMultiply", offset),
+            OpCode::OpDivide => Self::simple_instruction("OpDivide", offset),
+            OpCode::OpNegate => Self::simple_instruction("OpNegate", offset),
             OpCode::OpConstant => Self::constant_instruction("OpConstant", self, offset),
         }
     }
