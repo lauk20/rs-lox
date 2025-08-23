@@ -1,36 +1,58 @@
 mod chunk;
 mod value;
 mod vm;
+mod compiler;
+mod scanner;
 
-use chunk::{Chunk, OpCode};
+use chunk::{
+    Chunk, 
+    OpCode
+};
+use std::env;
+use std::fs;
+use std::io::{
+    self,
+    Write
+};
+use std::process::exit;
+use vm::{
+    InterpretResult, 
+    VM
+};
 
+fn repl(vm: &mut VM) {
+    print!("> ");
+    io::stdout().flush().expect("Failed to flush stdout"); // Explicitly flush
+    for line in io::stdin().lines() {
+        match line {
+            Ok(line) => {
+                vm.interpret(line);
+                print!("> ");
+                io::stdout().flush().expect("Failed to flush stdout"); // Explicitly flush
+            }
+            Err(error) => eprintln!("Error reading line {}", error)
+        }
+    }
+}
+
+fn run_file(vm: &mut VM, path: &str) {
+    let source = fs::read_to_string(path).unwrap();
+    let result = vm.interpret(source);
+
+    match result {
+        InterpretResult::InterpretCompilerError => exit(65),
+        InterpretResult::InterpretRuntimeError => exit(70),
+        _ => {},
+    }
+}
 
 fn main() {
     let mut vm = vm::VM::new();
-    let mut chunk = Chunk::new();
     
-    let mut constant = chunk.add_constant(1.2);
-    chunk.write_chunk(OpCode::OpConstant as usize, 123);
-    chunk.write_chunk(constant, 123);
-
-    constant = chunk.add_constant(3.4);
-    chunk.write_chunk(OpCode::OpConstant as usize, 123);
-    chunk.write_chunk(constant, 123);
-
-    chunk.write_chunk(OpCode::OpAdd as usize, 123);
-
-    constant = chunk.add_constant(5.6);
-    chunk.write_chunk(OpCode::OpConstant as usize, 123);
-    chunk.write_chunk(constant, 123);
-
-    chunk.write_chunk(OpCode::OpDivide as usize, 123);
-
-    chunk.write_chunk(OpCode::OpNegate as usize, 123);
-
-    chunk.write_chunk(OpCode::OpReturn as usize, 123);
-    
-    // chunk.disassemble_chunk("test chunk");
-
-    vm.init(&chunk);
-    vm.interpret(&chunk);
+    let args: Vec<String> = env::args().collect();
+    match args.len() {
+        1 => repl(&mut vm),
+        2 => run_file(&mut vm, &args[1]),
+        _ => eprintln!("Usage: rslox [path]\n"),
+    }
 }

@@ -1,5 +1,12 @@
-use crate::chunk::{Chunk, OpCode};
-use crate::value::{Value, ValueArray};
+use crate::chunk::{
+    Chunk, 
+    OpCode
+};
+use crate::compiler;
+use crate::value::{
+    Value, 
+    ValueArray
+};
 
 #[derive(Default)]
 pub struct VM {
@@ -24,10 +31,9 @@ impl VM {
         self.chunk = chunk.clone();
     }
 
-    pub fn interpret(&mut self, chunk: &Chunk) -> InterpretResult {
-        self.chunk = chunk.clone();
-        self.ip = 0;
-        self.run()
+    pub fn interpret(&mut self, source: String) -> InterpretResult {
+        compiler::compile(source);
+        InterpretResult::InterpretOk
     }
 
     pub fn run(&mut self) -> InterpretResult {
